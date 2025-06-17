@@ -1,0 +1,17 @@
+{%extends "bootstrap/base.html" %}
+{% block title %}Login Page{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Login Page</h1>
+    <form method="POST">
+        <label for="" class="form-label">User Name</label>
+        <input type="text" name="username" class="form-control">
+        <label for="" class="form-label">Password</label>
+        <input type="password" name="password" class="form-control">
+        <input type="submit" value="login" class="btn btn-primary">
+
+    </form>
+</div>
+{% endblock %}
