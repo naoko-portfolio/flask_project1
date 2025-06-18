@@ -37,11 +37,11 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route('/', methods=['GET', 'POST'])
-@login_required
-def index():
-    if request.method =='GET':
-        posts = Post.query.all()
-    return render_template('index.html', posts=posts)
+def home():
+    posts = Post.query.all()
+    return render_template('home.html', posts=posts)
+
+
     
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():

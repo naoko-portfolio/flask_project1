@@ -1,0 +1,33 @@
+{%extends "bootstrap/base.html" %}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome to Your Building Community</h1>
+    <h3>A place to give away or sell items only within your building or complex</h3>
+    
+    <p>We all have things we no longer use — kids’ clothes, kitchen items, furniture — but it’s hard to sell or donate without a car, or to strangers.</p>
+    <p>With this site, you can interact only with your neighbors in the same building or complex.</p>
+
+   <ul style="list-style-type: none;">
+        <li>☑ Secure</li>
+        <li>☑ Trusted</li>
+        <li>☑ No need to travel</li>
+        <li>☑ Get to know your neighbors better</li>
+    </ul>
+
+
+
+    <p>New here?</p>
+    <a href="/signup" role="button">Register</a>
+    <span class="text-muted" style="margin-left: 6px;">It take time to be authorized by the building ower.</span>
+    <br><br>
+    <a href="/login" role="button">Login</a>
+    <br><br>
+     <img src="{{ url_for('static', filename='images/clothes1.jpg') }}" alt="Clothes Image">
+
+     <img src="{{ url_for('static', filename='images/piles_of_things.jpg') }}" alt="Pile of things Image">
+    <img src="{{ url_for('static', filename='images/people.jpg') }}" alt="People Image">
+   
+</div>
+{% endblock %}
