@@ -1,7 +1,7 @@
 from flask import Flask
 from flask import render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required
+from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_bootstrap import Bootstrap
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -67,9 +67,20 @@ def login():
         user = User.query.filter_by(username=username).first()
         if check_password_hash(user.password, password):
             login_user(user)
-            return redirect('/')
+            return redirect('/dashboard')
     else: 
         return render_template('login.html')
+    
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+  
+    return render_template('dashboard.html', user=current_user)
+
+
+
+
     
 @app.route('/logout')
 @login_required

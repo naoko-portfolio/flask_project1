@@ -1,0 +1,23 @@
+a.custom-btn {
+ background-color: red !important;
+  color: #1e81b0 !important;
+}
+
+
+.custom-btn{
+background-color: red;
+  color: #1e81b0;
+  border: none;
+  padding: 8px 16px;
+  text-decoration: none;
+  display: inline-block;
+  border-radius: 4px;
+  margin-right: 10px; 
+}
+
+.custom-btn:hover{
+  background-color: #1e81b0;   /* ホバー時に濃い青 */
+  color: #ffffff;              /* 白文字 */
+  text-decoration: none;   
+}
+
