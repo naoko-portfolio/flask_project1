@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+</head>
+<body>
+    <h2>Edit Your Profile</h2>
+    <form method="POST">
+        <label>Bio:</label><br>
+        <!-- if profile exists, use profile.bio; otherwise, use an empty string (''). -->
+        <textarea name="bio">{{ profile.bio if profile else '' }}</textarea><br><br>  
+        <label>Profile Image URL:</label><br>
+        <input type="text" name="image_url" value="{{ profile.image_url if profile else ''}}"><br><br>
+        <button type="submit">Save Profile</button>
+    </form>
+</body>
+</html>

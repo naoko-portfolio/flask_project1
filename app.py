@@ -1,129 +1,175 @@
-from flask import Flask
-from flask import render_template, request, redirect
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
-from flask_bootstrap import Bootstrap
-
+from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-import pytz
+from pymongo import MongoClient
+import certifi
 import os
-
-basedir = os.path.abspath(os.path.dirname(__file__))
+from werkzeug.utils import secure_filename
+from bson import ObjectId
 
 app=Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'blog.db')
-app.config['SECRET_KEY'] = os.urandom(24)
-db=SQLAlchemy(app)
-bootstrap = Bootstrap(app)
+app.secret_key = os.urandom(24)
 
-login_manager =LoginManager()
-login_manager.init_app(app)
+# MongoDB setup
+client = MongoClient("mongodb+srv://naokomca:4DV3wwzaOzYdu5iD@cluster0.cedhibt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", tlsCAFile=certifi.where())
+db = client['Community_site'] 
+users_collection = db['users']
+items_collection = db['items']
+profiles_collection = db['profiles']
 
-class Post(db.Model):
-    id=db.Column(db.Integer, primary_key=True)
-    title=db.Column(db.String(50), nullable=False)
-    body=db.Column(db.String(300), nullable=False)
-    created_at=db.Column(db.DateTime, nullable=False, 
-                         default=datetime.now(pytz.timezone('America/Toronto')))
-    
-class User(UserMixin, db.Model):
-    id=db.Column(db.Integer, primary_key=True)
-    username =db.Column(db.String(30),unique=True)
-    password=db.Column(db.String(12))
-   
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
 
-@app.route('/', methods=['GET', 'POST'])
+# Home
+@app.route('/')
 def home():
-    posts = Post.query.all()
-    return render_template('home.html', posts=posts)
+    items = list(items_collection.find())
+    return render_template('home.html', items=items)
 
-
-    
+ # Sign Up   
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username=request.form.get('username')
-        password=request.form.get('password')
+        username = request.form.get('username')
+        password = request.form.get('password')
 
-        user = User(username=username, password=generate_password_hash(password, method='pbkdf2:sha256'))
-
-        db.session.add(user)
-        db.session.commit()
-        return redirect('/login')
-    else: 
-        return render_template('signup.html')
+        existing_user = users_collection.find_one({'username': username})
+        if existing_user:
+            return "Username already exists"
         
-
+        hashed_pw =generate_password_hash(password)
+        users_collection.insert_one({
+           'username': username,
+           'password': hashed_pw
+       })
+        
+        return redirect('/login')
+    return render_template('signup.html')
+        
+# Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username=request.form.get('username')
         password=request.form.get('password')
 
-        user = User.query.filter_by(username=username).first()
-        if check_password_hash(user.password, password):
-            login_user(user)
-            return redirect('/dashboard')
-    else: 
-        return render_template('login.html')
+        user = users_collection.find_one({'username': username})
+        if user and check_password_hash(user['password'], password):
+          session['username'] = username
+          return redirect('/dashboard')
+        else: 
+            return "Invalid username or password"
+    return render_template('login.html')
     
-
+# Dashboard
 @app.route('/dashboard')
-@login_required
 def dashboard():
-  
-    return render_template('dashboard.html', user=current_user)
-
-
-
-
-    
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
+ 
+  if 'username' not in session:
     return redirect('/login')
+  
+  username = session['username']
+  user_items = list(items_collection.find({'username': username}))
+  print(user_items)
+  profile=profiles_collection.find_one({'username': username})
 
+  return render_template(
+      'dashboard.html', 
+      username=username,
+      items=user_items,
+      profile=profile
+    )
 
+# Logout  
+@app.route('/logout')
+def logout():
+   session.clear()
+   return redirect('/login')
 
-
+# Add Item (New Create)
 @app.route('/create', methods=['GET', 'POST'])
-@login_required
 def create():
+
+    if 'username' not in session:
+        return redirect('/login')
+    
     if request.method == 'POST':
         title=request.form.get('title')
-        body=request.form.get('body')
-        post = Post(title=title, body=body)
-        db.session.add(post)
-        db.session.commit()
-        return redirect('/')
-    else: 
-        return render_template('create.html')
+        description = request.form.get('description')
+        image_file = request.files['image']
+
+        image_filename= None
+        if image_file and image_file.filename != '':
+            filename= secure_filename(image_file.filename)
+            image_path = os.path.join('static/images', filename)
+            image_file.save(image_path)
+            image_filename =filename
+           
+        items_collection.insert_one({
+            'username': session['username'],
+            'title': title,
+            'description': description,
+            'image': image_filename
+        })
+
+        return redirect('/dashboard')
+    return render_template('create.html')
+
+# Edit Item
+@app.route('/edititem/<item_id>', methods=['GET', 'POST'])
+def edit_item(item_id):
+    if 'username' not in session:
+        return redirect('/login')
+    item = items_collection.find_one({'_id': ObjectId(item_id)})
+    if not item or item['username'] != session['username']:
+        return "Unauthorized", 403
     
-@app.route('/<int:id>/update', methods=['GET', 'POST'])
-@login_required
-def update(id):
-    post = Post.query.get(id)
-    if request.method == 'GET':
-        return render_template('update.html', post=post)
-    else: 
-        post.title = request.form.get('title')
-        post.body = request.form.get('body')
-       
-        db.session.commit()
-        return redirect('/')
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+
+        items_collection.update_one(
+            {'_id': ObjectId(item_id)},
+            {'$set': {'title': title, 'description': description}}
+        )
+        return redirect('/dashboard')
     
-@app.route('/<int:id>/delete', methods=['GET'])
-@login_required
-def delete(id):
-    post = Post.query.get(id)
-    db.session.delete(post)
-    db.session.commit()
-    return redirect('/')
+    return render_template('edititem.html', item=item)
+
+
+# Edit Profile
+@app.route('/editprofile', methods=['GET', 'POST'])
+def edit_profile():
+
+    if 'username' not in session:
+        return redirect('/login')
+    
+    username=session['username']
+    
+    if request.method == 'POST':
+       bio = request.form.get('bio')
+       image_url = request.form.get('image_url')
+
+       profile_data={
+           'username': username,
+           'bio': bio,
+           'image_url': image_url
+       }
+
+       existing_profile = profiles_collection.find_one({'username': username})
+       if existing_profile:
+          profiles_collection.update_one({'username': username}, {'$set': profile_data})
+       else:
+           profiles_collection.insert_one(profile_data)
+
+       return redirect('/dashboard')
+    
+    profile = profiles_collection.find_one({'username': username})
+    
+    return render_template('editprofile.html', profile=profile) #from HTML to pyton
+
+@app.route('/market')
+def market():
+    all_items = list(items_collection.find())
+    return render_template('market.html', items=all_items)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

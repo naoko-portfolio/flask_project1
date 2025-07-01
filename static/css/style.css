@@ -1,23 +1,159 @@
-a.custom-btn {
- background-color: red !important;
-  color: #1e81b0 !important;
-}
-
-
 .custom-btn{
-background-color: red;
+background-color: #d6ecfa;
   color: #1e81b0;
   border: none;
-  padding: 8px 16px;
+  padding: 5px 16px;
   text-decoration: none;
   display: inline-block;
   border-radius: 4px;
-  margin-right: 10px; 
+  margin: 10px; 
+  width: auto;             /* ← これ追加して幅を必要な分だけにする */
+  max-width: 200px;        /* ← 長すぎる場合の制限 */
+  text-align: center;
 }
 
 .custom-btn:hover{
-  background-color: #1e81b0;   /* ホバー時に濃い青 */
+  background-color: #83C8F2;   /* ホバー時に濃い青 */
   color: #ffffff;              /* 白文字 */
   text-decoration: none;   
 }
 
+.dashbord-container{
+    display: flex;
+    gap: 30px;
+    margin: 20px;
+    align-items: flex-start;
+    margin: 20px;
+}
+
+.profile-sidebar{
+    width: 250px;
+    text-align: center;
+     display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-img{
+    margin: 20px;
+    width:120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-main{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 150px; 
+    
+}
+
+.item-card {
+    width: 100%;
+    max-width: 300px;
+    margin: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.item-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.item-card .card-body {
+    padding: 10px;
+}
+.card-img-top {
+    height: 250px;
+    object-fit: cover;
+}
+
+.item-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+}
+
+.item-card {
+    width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+.item-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+.item-card .card-body {
+    padding: 10px;
+}
+
+.item-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+}
+
+
+.card-body {
+    padding: 10px;
+}
+
+.item-card {
+    width: 100%;
+    max-width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-img-top {
+  height: 150px;
+  object-fit: cover;
+}
+
+.card-body {
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  line-height: 1.2;
+  height: 100px;                /* 高さ制限 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-description {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+
+.description-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 0.9rem;
+  line-height: 1.2em;
+  max-height: 2.4em; /* 1.2em × 2行分 */
+  margin-bottom: 0.5rem;
+}
